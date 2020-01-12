@@ -99,17 +99,17 @@ def printFallWicket(c, matchID):
     header = scard['scorecard'][0]['fall_wickets'][0].keys()
     rows = [x.values() for x in scard['scorecard'][0]['fall_wickets']]
     print(tabulate.tabulate(rows, header))
-def cricket_launcher():
+
+def cricketLiveMode():
     os.system('cls')
-    print("Entering cricket mode...")
+    print("Loading available matches...")
     c = Cricbuzz()
     selectedMatchID = match_selector(c)
-    print("Entering live score mode...")
-    print(" ")
     # matchInfo = c.matchinfo(selectedMatchID)
     # print(json.dumps(matchInfo, indent=4, sort_keys=True))
     comm = c.commentary(selectedMatchID)
     print(json.dumps(comm, indent=4, sort_keys=True))
+    print("")
     ss = StreamScore(c, selectedMatchID)
     ss.start()
     command = ''
@@ -140,3 +140,20 @@ def cricket_launcher():
             ss.resetLastActive()
             print("Not a valid option.")
             print(input_text())
+
+def cricket_launcher():
+    os.system('cls')
+    selection = ""
+
+    while selection.upper() not in ("E", "EXIT"):
+        print("CRICKET")
+        print("-------")
+        print("")
+        print("1. Live Scores")
+        print("2. Recent Results")
+        print("E. Exit")
+        print("")
+        selection = input("Select an option: ")
+
+        if selection.upper() == "1":
+            cricketLiveMode()

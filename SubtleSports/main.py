@@ -32,6 +32,7 @@ if __name__ == "__main__":
         menuOption = input("Select a sport: ")
 
         if menuOption == "1":
+            os.system('cls')
             cricket_launcher()
         elif menuOption == "2":
             messageToDisplay = "TODO: Add Football Module"
