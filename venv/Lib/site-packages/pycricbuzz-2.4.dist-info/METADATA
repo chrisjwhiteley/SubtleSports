@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: pycricbuzz
+Version: 2.4
+Summary: A library for fetching live cricket scores from cricbuzz
+Home-page: https://github.com/codophobia/pycricbuzz
+Author: Shivam Mitra
+Author-email: shivamm389@gmail.com
+License: GPLv2
+Download-URL: https://github.com/codophobia/pycricbuzz/tarball/2.4
+Keywords: cricket,cricbuzz
+Platform: UNKNOWN
+Requires-Dist: requests
+
+UNKNOWN
+
+
