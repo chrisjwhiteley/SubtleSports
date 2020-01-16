@@ -19,8 +19,8 @@ if __name__ == "__main__":
         printLogo()
         print("The following sports are currently available")
         print("1. Cricket")
-        print("2. Football")
-        print("3. Tennis")
+        # print("2. Football")
+        # print("3. Tennis")
         print("")
         print("E. Exit")
 
@@ -34,10 +34,10 @@ if __name__ == "__main__":
         if menuOption == "1":
             os.system('cls')
             cricket_launcher()
-        elif menuOption == "2":
-            messageToDisplay = "TODO: Add Football Module"
-        elif menuOption == "3":
-            messageToDisplay = "TODO: Add Tennis Module"
+        # elif menuOption == "2":
+        #     messageToDisplay = "TODO: Add Football Module"
+        # elif menuOption == "3":
+        #     messageToDisplay = "TODO: Add Tennis Module"
         elif menuOption.upper() in ('E', 'EXIT'):
             print("Exiting...")
         else:
