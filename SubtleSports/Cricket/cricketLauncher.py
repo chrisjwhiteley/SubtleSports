@@ -68,7 +68,12 @@ def printScoreCard(c,matchID):
     scorecard = c.scorecard(matchID)
     # Output scorecard
     # print(scorecard)
-    print(json.dumps(scorecard, indent=4))
+    for innings in scorecard['scorecard']:
+        batcard = innings['batcard']
+        header = batcard[0].keys()
+        rows = [x.values() for x in batcard]
+        print(tabulate.tabulate(rows, header))
+
     # TODO: Format scorecard nicely.
 def printHelpMenu():
     print("Cricket LiveScore help")
