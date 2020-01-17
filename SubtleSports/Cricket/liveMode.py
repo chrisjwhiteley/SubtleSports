@@ -4,6 +4,7 @@ import threading
 import time
 import json
 import tabulate
+import pandas as pd
 
 class StreamScore(threading.Thread):
     def __init__(self, cricbuzz, matchID):
@@ -78,10 +79,20 @@ def printScoreCard(c,matchID):
     try:
         scorecard = c.scorecard(matchID)
         for innings in scorecard['scorecard']:
+            inningstext = {
+                1: "1st",
+                2: "2nd"
+            }
+            headerText = (innings['batteam'] + " - " + inningstext.get(int(innings['inng_num'])) + " innings")
+            print("-" * (len(headerText) + 4))
+            print("| " + headerText + " |")
+            print("-" * (len(headerText) + 4))
             batcard = innings['batcard']
-            header = batcard[0].keys()
-            rows = [x.values() for x in batcard]
-            print(tabulate.tabulate(rows, header))
+            batcardDF = pd.DataFrame(batcard)
+
+            batcardDF['strike rate'] = pd.to_numeric(batcardDF.runs) / pd.to_numeric(batcardDF.balls) * 100
+            print(tabulate.tabulate(batcardDF, headers='keys', showindex=False, floatfmt='.2f'))
+            print("")
     except:
         print("Unable to fetch scorecard for this match.")
 
@@ -101,10 +112,11 @@ def printHelpMenu():
 
 def printBatsmen(c, matchID):
     try:
-        lscore = c.livescore(matchID)
-        header = lscore['batting']['batsman'][0].keys()
-        rows = [x.values() for x in lscore['batting']['batsman']]
-        print(tabulate.tabulate(rows, header))
+        lscore = c.livescore(matchID)['batting']['batsman']
+        test = c.livescore(matchID)
+        lscoreDF = pd.DataFrame(lscore)
+        lscoreDF['strike rate'] = pd.to_numeric(lscoreDF.runs) / pd.to_numeric(lscoreDF.balls) * 100
+        print(tabulate.tabulate(lscoreDF, headers='keys', showindex=False, floatfmt='.2f'))
     except:
         print("Unable to show current batsmen for this match")
 
@@ -129,9 +141,7 @@ def cricketLiveMode():
     print("Loading available matches...")
     c = Cricbuzz()
     selectedMatchID = match_selector(c)
-    comm = c.commentary(selectedMatchID)
-    print(json.dumps(comm, indent=4, sort_keys=True))
-    print("")
+
     ss = StreamScore(c, selectedMatchID)
     ss.start()
     command = ''
