@@ -19,28 +19,31 @@ class StreamScore(threading.Thread):
             # TODO: Cache the output so that we only clear the screen if something has changed. This helps avoid flickering.
             # TODO: Try/catch, gracefully exit.
             # Clear the screen
-            os.system('cls')
-            # Get updated match info
-            matchInfo = self.c.matchinfo(self.matchID)
-            lscore = self.c.livescore(self.matchID)
+            try:
+                os.system('cls')
+                # Get updated match info
+                matchInfo = self.c.matchinfo(self.matchID)
+                lscore = self.c.livescore(self.matchID)
 
-            print(matchInfo['srs'] + ' - ' + matchInfo['mnum'])
+                print(matchInfo['srs'] + ' - ' + matchInfo['mnum'])
 
-            if matchInfo['mchstate'] in ['inprogress','stumps']:
-                # Print the live score
-                battingTeam = lscore['batting']
-                # print(battingTeam['score'])
-                print(battingTeam['team'] + ' ' + battingTeam['score'][0]['runs'] + '-' + battingTeam['score'][0][
-                    'wickets'] + ' from ' + battingTeam['score'][0]['overs'] + ' overs')
-                print(matchInfo['status'])
-            else:
-                print(matchInfo['status'])
-            print(input_text())
+                if matchInfo['mchstate'] in ['inprogress','stumps']:
+                    # Print the live score
+                    battingTeam = lscore['batting']
+                    # print(battingTeam['score'])
+                    print(battingTeam['team'] + ' ' + battingTeam['score'][-1]['runs'] + '-' + battingTeam['score'][-1][
+                        'wickets'] + ' from ' + battingTeam['score'][-1]['overs'] + ' overs')
+                    print(matchInfo['status'])
+                else:
+                    print(matchInfo['status'])
+                print(input_text())
 
-            # If no user input has been received in longer then refresh, otherwise let them continue.
-            while int(time.time() - self.lastActive) < self.inactivityThreshold:
-                self.event.wait(1)
-            self.resetLastActive()
+                # If no user input has been received in longer then refresh, otherwise let them continue.
+                while int(time.time() - self.lastActive) < self.inactivityThreshold:
+                    self.event.wait(1)
+                self.resetLastActive()
+            except:
+                print("Unable to retrieve live score for the last " + str(self.lastActive) + " seconds - attempting to restore connection.")
     def stop(self):
         self.event.set()
     def resetLastActive(self):
@@ -81,7 +84,9 @@ def printScoreCard(c,matchID):
         for innings in scorecard['scorecard']:
             inningstext = {
                 1: "1st",
-                2: "2nd"
+                2: "1st",
+                3: "2nd",
+                4: "2nd"
             }
             headerText = (innings['batteam'] + " - " + inningstext.get(int(innings['inng_num'])) + " innings")
             print("-" * (len(headerText) + 4))
