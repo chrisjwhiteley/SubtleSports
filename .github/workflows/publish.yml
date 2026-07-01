@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write   # required for npm provenance attestation
 
 jobs:
   publish:
@@ -39,5 +40,5 @@ jobs:
             echo "$NAME@$VERSION is already published — skipping."
           else
             echo "Publishing $NAME@$VERSION..."
-            npm publish --access public
+            npm publish --provenance --access public
           fi

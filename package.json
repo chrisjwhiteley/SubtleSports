@@ -6,6 +6,10 @@
   "bin": {
     "subtlesports": "dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisjwhiteley/SubtleSports.git"
+  },
   "scripts": {
     "start": "tsx src/index.tsx",
     "dev": "tsx src/index.tsx",
