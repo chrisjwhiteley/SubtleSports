@@ -4,6 +4,7 @@ import { LiveMatch, Config } from '../../types';
 import { DetailView, ScorecardInnings, MatchInfo } from './types';
 import { fetchMatchState, fetchScorecard } from './api';
 import { useMatchPolling } from '../../hooks/useMatchPolling';
+import { openUrl } from '../../util/openUrl';
 import Layout from '../../components/Layout';
 import StreamView from './components/StreamView';
 import Scorecard from './components/detail/Scorecard';
@@ -49,7 +50,8 @@ export default function CricketMatchView({ match, config, onExit }: Props) {
   }, [rawState?.lastUpdated]);
 
   // Esc from the stream returns to the match list; detail views handle their own Esc.
-  useInput((_, key) => {
+  useInput((input, key) => {
+    if (input === 'o') openUrl(match.url ?? '');
     if (key.escape && view === 'stream') onExit();
   });
 
@@ -63,7 +65,7 @@ export default function CricketMatchView({ match, config, onExit }: Props) {
 
   if (view === 'stream') {
     return (
-      <Layout footer="s scorecard  b ball-by-ball  p partnership  esc match list  q quit">
+      <Layout footer="s scorecard  b ball-by-ball  p partnership  o open  esc match list  q quit">
         <Box flexDirection="column">
           {pollError && <Text dimColor>poll error: {pollError}</Text>}
           <StreamView state={state} config={config} onDetail={v => setView(v)} />

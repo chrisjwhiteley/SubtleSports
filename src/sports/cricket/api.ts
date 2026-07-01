@@ -31,6 +31,7 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
       status: '',
       series: '',
       matchType: '',
+      url: link || `https://www.espncricinfo.com/ci/engine/match/${id}.html`,
     });
   }
 

@@ -31,6 +31,15 @@ interface CompContext {
   comp: any;
   tournament: string;
   round: string;
+  url: string;
+}
+
+// Pick a browser-friendly match page. Prefer a match-specific link, falling back
+// to the tournament/event link. (Field verified-on-first-run, like the rest.)
+function matchUrl(comp: any, event: any): string {
+  const links: any[] = [...(comp.links ?? []), ...(event.links ?? [])];
+  const pick = links.find(l => Array.isArray(l.rel) && l.rel.includes('desktop')) ?? links[0];
+  return pick?.href ?? '';
 }
 
 function* iterCompetitions(data: any): Generator<CompContext> {
@@ -41,11 +50,11 @@ function* iterCompetitions(data: any): Generator<CompContext> {
     if (groupings.length > 0) {
       for (const g of groupings) {
         const round = g.grouping?.displayName ?? g.displayName ?? '';
-        for (const comp of g.competitions ?? []) yield { comp, tournament, round };
+        for (const comp of g.competitions ?? []) yield { comp, tournament, round, url: matchUrl(comp, event) };
       }
     } else {
       for (const comp of event.competitions ?? []) {
-        yield { comp, tournament, round: comp.type?.text ?? '' };
+        yield { comp, tournament, round: comp.type?.text ?? '', url: matchUrl(comp, event) };
       }
     }
   }
@@ -138,16 +147,17 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
     }),
   );
 
-  interface Ranked { match: LiveMatch; live: boolean; slam: boolean }
+  interface Ranked { match: LiveMatch; slam: boolean }
   const ranked: Ranked[] = [];
 
   for (const p of payloads) {
     if (!p) continue;
-    for (const { comp, tournament, round } of iterCompetitions(p.data)) {
+    for (const { comp, tournament, round, url } of iterCompetitions(p.data)) {
+      // Only show matches that are actually in progress.
+      if ((comp.status?.type?.state ?? '') !== 'in') continue;
       const [a, b] = orderedCompetitors(comp);
       const teams = [competitorName(a), competitorName(b)].filter(Boolean).join(' vs ');
       if (!teams || !comp.id) continue;
-      const state = comp.status?.type?.state ?? ''; // 'pre' | 'in' | 'post'
       ranked.push({
         match: {
           id: `${p.league}:${comp.id}`,
@@ -156,20 +166,16 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
           status: statusText(comp),
           series: isGrandSlam(tournament) ? `★ ${tournament}` : tournament,
           matchType: round,
+          url,
         },
-        live: state === 'in',
         slam: isGrandSlam(tournament),
       });
     }
   }
 
-  // Live matches first, then Grand Slams, preserving discovery order within a tier.
-  ranked.sort((x, y) => rank(y) - rank(x));
+  // Grand Slams first, preserving discovery order within each tier.
+  ranked.sort((x, y) => Number(y.slam) - Number(x.slam));
   return ranked.map(r => r.match);
-
-  function rank(r: Ranked): number {
-    return (r.live ? 2 : 0) + (r.slam ? 1 : 0);
-  }
 }
 
 export async function fetchMatchState(id: string): Promise<TennisMatchState> {

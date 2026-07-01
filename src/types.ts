@@ -10,6 +10,7 @@ export interface LiveMatch {
   status: string;
   series: string;
   matchType: string;
+  url?: string;   // canonical match page, opened via the "o" hotkey
 }
 
 export interface Config {

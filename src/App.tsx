@@ -54,7 +54,7 @@ export default function App({ config }: Props) {
 
   if (!selectedMatch) {
     return (
-      <Layout footer="↑↓ navigate  enter select  esc sports  q quit">
+      <Layout footer="↑↓ navigate  enter select  o open in browser  esc sports  q quit">
         <MatchList
           matches={matches}
           config={config}
