@@ -30,7 +30,8 @@ function scoreboardUrl(league: League): string {
 interface CompContext {
   comp: any;
   tournament: string;
-  round: string;
+  round: string;   // e.g. "Round 2" (comp.round.displayName)
+  group: string;   // draw type, e.g. "Men's Singles" (comp.type.text)
   url: string;
 }
 
@@ -46,16 +47,23 @@ function* iterCompetitions(data: any): Generator<CompContext> {
   const leagueName = data.leagues?.[0]?.name ?? '';
   for (const event of data.events ?? []) {
     const tournament = event.tournament?.displayName ?? event.name ?? leagueName;
+    // Draw type + round live on the competition itself (comp.type.text / comp.round);
+    // fall back to the grouping's displayName for the draw type when absent.
+    const emit = (comp: any, groupingName: string): CompContext => ({
+      comp,
+      tournament,
+      round: comp.round?.displayName ?? '',
+      group: comp.type?.text ?? groupingName,
+      url: matchUrl(comp, event),
+    });
     const groupings: any[] = event.groupings ?? [];
     if (groupings.length > 0) {
       for (const g of groupings) {
-        const round = g.grouping?.displayName ?? g.displayName ?? '';
-        for (const comp of g.competitions ?? []) yield { comp, tournament, round, url: matchUrl(comp, event) };
+        const groupingName = g.grouping?.displayName ?? g.displayName ?? '';
+        for (const comp of g.competitions ?? []) yield emit(comp, groupingName);
       }
     } else {
-      for (const comp of event.competitions ?? []) {
-        yield { comp, tournament, round: comp.type?.text ?? '', url: matchUrl(comp, event) };
-      }
+      for (const comp of event.competitions ?? []) yield emit(comp, '');
     }
   }
 }
@@ -129,6 +137,20 @@ function statusText(comp: any): string {
   return t?.shortDetail ?? t?.description ?? t?.detail ?? '';
 }
 
+// Compact set-score summary from the two competitors' linescores, home first:
+// e.g. [[6,4,2],[4,6,1]] -> "6-4 4-6 2-1".
+function setScoreSummary(comp: any): string {
+  const [a, b] = orderedCompetitors(comp);
+  const aLs: any[] = a.linescores ?? [];
+  const bLs: any[] = b.linescores ?? [];
+  const n = Math.max(aLs.length, bLs.length);
+  const sets: string[] = [];
+  for (let i = 0; i < n; i++) {
+    sets.push(`${aLs[i]?.value ?? 0}-${bLs[i]?.value ?? 0}`);
+  }
+  return sets.join(' ');
+}
+
 function toState(comp: any, tournament: string, round: string, matchId: string): TennisMatchState {
   const serving = servingId(comp);
   const [a, b] = orderedCompetitors(comp);
@@ -161,21 +183,25 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
 
   for (const p of payloads) {
     if (!p) continue;
-    for (const { comp, tournament, round, url } of iterCompetitions(p.data)) {
+    for (const { comp, tournament, round, group, url } of iterCompetitions(p.data)) {
       // Only show matches that are actually in progress.
       if ((comp.status?.type?.state ?? '') !== 'in') continue;
       if (!comp.id || byId.has(String(comp.id))) continue;
       const [a, b] = orderedCompetitors(comp);
       const teams = [competitorName(a), competitorName(b)].filter(Boolean).join(' vs ');
       if (!teams) continue;
+      // Status line shows the live set score plus the state, e.g. "4-4 · 1st Set".
+      const detail = comp.status?.type?.detail ?? statusText(comp);
+      const status = [setScoreSummary(comp), detail].filter(Boolean).join('  ·  ');
       byId.set(String(comp.id), {
         match: {
           id: `${p.league}:${comp.id}`,
           description: `${tournament} — ${teams}`,
           teams,
-          status: statusText(comp),
+          status,
           series: isGrandSlam(tournament) ? `★ ${tournament}` : tournament,
           matchType: round,
+          group,
           url,
         },
         slam: isGrandSlam(tournament),

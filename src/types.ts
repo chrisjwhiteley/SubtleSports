@@ -11,6 +11,7 @@ export interface LiveMatch {
   series: string;
   matchType: string;
   url?: string;   // canonical match page, opened via the "o" hotkey
+  group?: string; // optional section header for the match list (e.g. tennis draw type)
 }
 
 export interface Config {
