@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput, useStdout } from 'ink';
 import { MatchState, ScorecardInnings, MatchInfo } from '../../types';
-import { fetchScorecard } from '../../api/cricinfo';
+import { fetchScorecard } from '../../api';
 
 interface Props {
   state: MatchState;

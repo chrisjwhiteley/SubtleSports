@@ -1,15 +1,6 @@
-import { LiveMatch, MatchState, InningsSummary, Batsman, Bowler, BallEvent, Partnership, ScorecardInnings, FallOfWicket, MatchInfo } from '../types';
-
-const HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Accept': 'application/json',
-};
-
-async function fetchJson(url: string): Promise<any> {
-  const res = await fetch(url, { headers: HEADERS });
-  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
-  return res.json();
-}
+import { LiveMatch } from '../../types';
+import { MatchState, InningsSummary, Batsman, Bowler, BallEvent, Partnership, ScorecardInnings, FallOfWicket, MatchInfo } from './types';
+import { HEADERS, fetchJson } from '../../api/http';
 
 // Extract match ID from a cricinfo match URL
 function extractMatchId(url: string): string {
@@ -40,6 +31,7 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
       status: '',
       series: '',
       matchType: '',
+      url: link || `https://www.espncricinfo.com/ci/engine/match/${id}.html`,
     });
   }
 

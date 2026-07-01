@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Text, useInput } from 'ink';
-import { MatchState, Config, DetailView } from '../types';
+import { Config } from '../../../types';
+import { MatchState, DetailView } from '../types';
 
 interface Props {
   state: MatchState;

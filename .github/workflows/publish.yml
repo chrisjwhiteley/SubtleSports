@@ -1,0 +1,44 @@
+name: Publish to npm
+
+# Runs whenever master advances (i.e. when a PR is merged). It only publishes
+# when package.json has a version that isn't on npm yet, so ordinary merges
+# without a version bump are skipped rather than failing. To release, bump the
+# version in your PR (e.g. `npm version patch`) and merge.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+permissions:
+  contents: read
+  id-token: write   # required for npm provenance attestation
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run build
+
+      - name: Publish if the version is new
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "$NAME@$VERSION is already published — skipping."
+          else
+            echo "Publishing $NAME@$VERSION..."
+            npm publish --provenance --access public
+          fi

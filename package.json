@@ -1,17 +1,38 @@
 {
   "name": "subtlesports",
-  "version": "0.0.1",
-  "description": "Subtle cricket scores in your terminal",
+  "version": "0.0.2",
+  "description": "Subtle live sports scores in your terminal — cricket and tennis",
   "main": "dist/index.js",
   "bin": {
     "subtlesports": "dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisjwhiteley/SubtleSports.git"
+  },
   "scripts": {
     "start": "tsx src/index.tsx",
-    "build": "tsc",
-    "dev": "tsx src/index.tsx"
+    "dev": "tsx src/index.tsx",
+    "build": "tsup",
+    "typecheck": "tsc",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "cli",
+    "tui",
+    "sports",
+    "cricket",
+    "tennis",
+    "scores",
+    "terminal",
+    "ink"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
@@ -23,6 +44,7 @@
     "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",
     "ts-node": "^10.9.2",
+    "tsup": "^8.5.1",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }

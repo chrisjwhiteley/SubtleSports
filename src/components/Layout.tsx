@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useStdout } from 'ink';
 
-const VERSION = 'SubtleSports v0.0.1';
+import pkg from '../../package.json';
+
+const VERSION = `SubtleSports v${pkg.version}`;
 
 interface Props {
   footer: string;
