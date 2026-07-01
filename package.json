@@ -1,6 +1,6 @@
 {
   "name": "subtlesports",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Subtle live sports scores in your terminal — cricket and tennis",
   "main": "dist/index.js",
   "bin": {
