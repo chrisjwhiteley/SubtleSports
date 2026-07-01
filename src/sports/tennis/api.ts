@@ -148,17 +148,20 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
   );
 
   interface Ranked { match: LiveMatch; slam: boolean }
-  const ranked: Ranked[] = [];
+  // Keyed by the RAW comp.id so the same match returned by both the atp and wta
+  // feeds (Grand Slams appear on both) collapses to a single entry.
+  const byId = new Map<string, Ranked>();
 
   for (const p of payloads) {
     if (!p) continue;
     for (const { comp, tournament, round, url } of iterCompetitions(p.data)) {
       // Only show matches that are actually in progress.
       if ((comp.status?.type?.state ?? '') !== 'in') continue;
+      if (!comp.id || byId.has(String(comp.id))) continue;
       const [a, b] = orderedCompetitors(comp);
       const teams = [competitorName(a), competitorName(b)].filter(Boolean).join(' vs ');
-      if (!teams || !comp.id) continue;
-      ranked.push({
+      if (!teams) continue;
+      byId.set(String(comp.id), {
         match: {
           id: `${p.league}:${comp.id}`,
           description: `${tournament} — ${teams}`,
@@ -174,15 +177,26 @@ export async function fetchLiveMatches(): Promise<LiveMatch[]> {
   }
 
   // Grand Slams first, preserving discovery order within each tier.
-  ranked.sort((x, y) => Number(y.slam) - Number(x.slam));
-  return ranked.map(r => r.match);
+  return [...byId.values()]
+    .sort((x, y) => Number(y.slam) - Number(x.slam))
+    .map(r => r.match);
 }
 
 export async function fetchMatchState(id: string): Promise<TennisMatchState> {
   const [league, compId] = id.split(':');
-  const data = await fetchJson(scoreboardUrl(league as League));
-  for (const { comp, tournament, round } of iterCompetitions(data)) {
-    if (String(comp.id) === compId) return toState(comp, tournament, round, id);
+  // Try the id's own feed first, then fall back to the other tour's feed — a
+  // match de-duped to one feed may only reappear on the other on a later poll.
+  const order: League[] = league === 'wta' ? ['wta', 'atp'] : ['atp', 'wta'];
+  for (const lg of order) {
+    let data: any;
+    try {
+      data = await fetchJson(scoreboardUrl(lg));
+    } catch {
+      continue; // try the other feed
+    }
+    for (const { comp, tournament, round } of iterCompetitions(data)) {
+      if (String(comp.id) === compId) return toState(comp, tournament, round, id);
+    }
   }
-  throw new Error(`tennis match ${id} not found on ${league} scoreboard`);
+  throw new Error(`tennis match ${id} not found on atp or wta scoreboard`);
 }
