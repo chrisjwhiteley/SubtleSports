@@ -110,7 +110,10 @@ function servingId(comp: any): string | null {
 }
 
 function toPlayer(comp: any, c: any, serving: string | null): TennisPlayer {
-  const sets = (c.linescores ?? []).map((l: any) => Number(l.value ?? l.displayValue ?? 0));
+  const sets = (c.linescores ?? []).map((l: any) => ({
+    games: Number(l.value ?? l.displayValue ?? 0),
+    won: l.winner === true,
+  }));
   return {
     name: competitorName(c),
     seed: competitorSeed(c),
@@ -158,7 +161,8 @@ function toState(comp: any, tournament: string, round: string, matchId: string):
     matchId,
     tournament,
     round,
-    status: statusText(comp),
+    status: comp.status?.type?.detail ?? statusText(comp),
+    summary: comp.notes?.[0]?.text ?? '',
     players: [toPlayer(comp, a, serving), toPlayer(comp, b, serving)],
     lastUpdated: new Date(),
   };
