@@ -61,9 +61,16 @@ function* iterCompetitions(data: any): Generator<CompContext> {
 }
 
 function competitorName(c: any): string {
+  // Singles: a single athlete.
   if (c.athlete?.displayName) return c.athlete.displayName;
+  // Doubles: ESPN puts the pair under `roster` with a ready-made "A / B" string.
+  if (c.roster?.displayName) return c.roster.displayName;
+  if (Array.isArray(c.roster?.athletes) && c.roster.athletes.length) {
+    return c.roster.athletes.map((a: any) => a.displayName ?? a.shortName ?? a.fullName).filter(Boolean).join(' / ');
+  }
+  // Fallback shapes.
   if (Array.isArray(c.athletes) && c.athletes.length) {
-    return c.athletes.map((a: any) => a.displayName ?? a.athlete?.displayName).filter(Boolean).join('/');
+    return c.athletes.map((a: any) => a.displayName ?? a.athlete?.displayName).filter(Boolean).join(' / ');
   }
   if (c.team?.displayName) return c.team.displayName;
   return c.displayName ?? c.name ?? '';
