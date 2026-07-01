@@ -162,7 +162,6 @@ function toState(comp: any, tournament: string, round: string, matchId: string):
     tournament,
     round,
     status: comp.status?.type?.detail ?? statusText(comp),
-    summary: comp.notes?.[0]?.text ?? '',
     players: [toPlayer(comp, a, serving), toPlayer(comp, b, serving)],
     lastUpdated: new Date(),
   };

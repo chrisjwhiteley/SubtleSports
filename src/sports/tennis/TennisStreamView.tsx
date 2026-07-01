@@ -26,7 +26,7 @@ function PlayerRow({ p }: { p: TennisPlayer }) {
 }
 
 export default function TennisStreamView({ state }: Props) {
-  const { tournament, round, status, summary, players } = state;
+  const { tournament, round, status, players } = state;
   const header = [tournament, round].filter(Boolean).join('  ·  ');
 
   return (
@@ -40,8 +40,6 @@ export default function TennisStreamView({ state }: Props) {
         <PlayerRow p={players[0]} />
         <PlayerRow p={players[1]} />
       </Box>
-
-      {summary !== '' && <Text dimColor>{summary}</Text>}
     </Box>
   );
 }

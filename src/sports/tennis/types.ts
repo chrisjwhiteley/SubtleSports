@@ -20,7 +20,6 @@ export interface TennisMatchState {
   tournament: string;
   round: string;    // e.g. "Round 2"
   status: string;   // e.g. "In Progress", "2nd Set"
-  summary: string;  // human-readable standing from ESPN notes, "" when absent
   players: [TennisPlayer, TennisPlayer];
   lastUpdated: Date;
 }
