@@ -29,7 +29,7 @@ export default function MatchList({ matches, config, onSelect, error, loading }:
 
   if (loading) return <Text>fetching live matches...</Text>;
   if (error) return <Text>error: {error}</Text>;
-  if (sorted.length === 0) return <Text>no live international matches found</Text>;
+  if (sorted.length === 0) return <Text>no live matches found</Text>;
 
   return (
     <Box flexDirection="column">
