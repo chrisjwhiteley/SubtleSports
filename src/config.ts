@@ -9,6 +9,7 @@ const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 const DEFAULTS: Config = {
   pollIntervalSeconds: 30,
   preferredTeams: [],
+  showSplash: true,
 };
 
 export function loadConfig(): Config {
