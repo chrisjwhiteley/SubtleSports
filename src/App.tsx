@@ -3,6 +3,7 @@ import { useApp, useInput } from 'ink';
 import { LiveMatch, Config } from './types';
 import { SPORTS, SportModule } from './sports';
 import Layout from './components/Layout';
+import Splash from './components/Splash';
 import SportPicker from './components/SportPicker';
 import MatchList from './components/MatchList';
 
@@ -13,6 +14,7 @@ interface Props {
 export default function App({ config }: Props) {
   const { exit } = useApp();
 
+  const [showSplash, setShowSplash] = useState(config.showSplash);
   const [sport, setSport] = useState<SportModule | null>(null);
   const [matches, setMatches] = useState<LiveMatch[]>([]);
   const [matchesLoading, setMatchesLoading] = useState(false);
@@ -43,6 +45,10 @@ export default function App({ config }: Props) {
       .finally(() => { if (!cancelled) setMatchesLoading(false); });
     return () => { cancelled = true; };
   }, [sport]);
+
+  if (showSplash) {
+    return <Splash onDone={() => setShowSplash(false)} />;
+  }
 
   if (!sport) {
     return (

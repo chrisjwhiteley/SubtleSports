@@ -17,4 +17,6 @@ export interface LiveMatch {
 export interface Config {
   pollIntervalSeconds: number;
   preferredTeams: string[];
+  /** Set false to skip the launch splash screen. */
+  showSplash: boolean;
 }
